@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Andrew Sidford Architects — Tribal Mischief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════════ */
+:root {
+  --black:     #111111;
+  --charcoal:  #1a1a1a;
+  --dark:      #141410;
+  --gold:      #C8A96E;
+  --gold-lt:   #F5EDD8;
+  --gold-dim:  #8A7048;
+  --cream:     #F8F6F2;
+  --warm:      #E8E4DE;
+  --grey:      #6A6A64;
+  --white:     #FFFFFF;
+  --red-dim:   #7A2828;
+  --sidebar:   220px;
+  --serif:     'Cormorant Garamond', Georgia, serif;
+  --sans:      'DM Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--black);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════ */
+#sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar);
+  height: 100vh;
+  background: #0a0a0a;
+  border-right: 1px solid #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  padding: 28px 0;
+}
+
+.sidebar-brand {
+  font-family: var(--serif);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 0 22px 24px;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 0;
+  scrollbar-width: none;
+}
+.sidebar-nav::-webkit-scrollbar { display: none; }
+
+.chapter-btn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  border-left: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.chapter-btn.active { border-left-color: var(--gold); }
+
+.chapter-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 22px;
+  font-family: var(--sans);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #444;
+  transition: color 0.2s;
+}
+.chapter-btn:hover .chapter-label,
+.chapter-btn.active .chapter-label { color: var(--gold); }
+
+.chapter-num {
+  font-family: var(--serif);
+  font-size: 11px;
+  color: #333;
+  min-width: 16px;
+  transition: color 0.2s;
+}
+.chapter-btn.active .chapter-num { color: var(--gold-dim); }
+
+.sidebar-footer {
+  padding: 18px 22px 0;
+  border-top: 1px solid #1e1e1e;
+  font-family: var(--sans);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: #333;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE COUNTER
+═══════════════════════════════════════════════════ */
+#counter {
+  position: fixed;
+  top: 22px; right: 28px;
+  font-family: var(--serif);
+  font-size: 12px;
+  color: #444;
+  letter-spacing: 0.08em;
+  z-index: 200;
+  transition: color 0.3s;
+}
+#counter.on-light { color: #aaa; }
+
+/* ═══════════════════════════════════════════════════
+   NAV ARROWS
+═══════════════════════════════════════════════════ */
+.nav-arrow {
+  position: fixed;
+  bottom: 28px;
+  z-index: 200;
+  background: none;
+  border: 1px solid #2a2a2a;
+  color: #444;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.nav-arrow:hover { border-color: var(--gold); color: var(--gold); }
+#nav-prev { left: calc(var(--sidebar) + 28px); }
+#nav-next { left: calc(var(--sidebar) + 72px); }
+
+/* ═══════════════════════════════════════════════════
+   STAGE
+═══════════════════════════════════════════════════ */
+#stage {
+  position: fixed;
+  top: 0; bottom: 0;
+  left: var(--sidebar);
+  right: 0;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDES
+═══════════════════════════════════════════════════ */
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  transform: translateX(40px);
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.slide.exit {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+/* ── slide themes ───────────────────────── */
+.slide-dark   { background: var(--charcoal); }
+.slide-darker { background: var(--dark); }
+.slide-light  { background: var(--cream); }
+.slide-off    { background: #F5F4F1; }
+
+/* ═══════════════════════════════════════════════════
+   SLIDE INNER LAYOUTS
+═══════════════════════════════════════════════════ */
+.slide-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 72px;
+}
+
+/* ── eyebrow label ── */
+.eyebrow {
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+/* ── display title ── */
+.display {
+  font-family: var(--serif);
+  font-weight: 700;
+  line-height: 1.0;
+  color: var(--white);
+}
+.display-xl  { font-size: clamp(52px, 7vw, 88px); }
+.display-lg  { font-size: clamp(36px, 5vw, 60px); }
+.display-md  { font-size: clamp(28px, 3.5vw, 44px); }
+.display-dark { color: var(--charcoal); }
+
+.body-text {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(13px, 1.4vw, 16px);
+  line-height: 1.65;
+  color: var(--warm);
+  max-width: 560px;
+}
+.body-text.dark { color: var(--grey); }
+
+/* gold accent bar left */
+.gold-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--gold);
+}
+
+/* dot grid decoration */
+.dot-grid {
+  position: absolute;
+  display: grid;
+  gap: 18px;
+  opacity: 0.25;
+}
+.dot-grid span {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 1 — COVER
+═══════════════════════════════════════════════════ */
+#slide-1 .slide-inner {
+  padding: 60px 72px;
+}
+#slide-1 .cover-title {
+  font-family: var(--serif);
+  font-size: clamp(60px, 9vw, 110px);
+  font-weight: 700;
+  line-height: 0.92;
+  color: var(--white);
+  margin-bottom: 36px;
+}
+#slide-1 .cover-sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(16px, 2vw, 22px);
+  color: var(--gold-lt);
+  font-weight: 300;
+}
+#slide-1 .cover-meta {
+  position: absolute;
+  bottom: 40px;
+  left: 72px; right: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #2a2a2a;
+  padding-top: 18px;
+}
+#slide-1 .meta-text {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #404040;
+}
+#slide-1 .dot-grid {
+  top: 48px; right: 48px;
+  grid-template-columns: repeat(5, 4px);
+  grid-template-rows: repeat(6, 4px);
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 2 — THE INVISIBLE FIRM
+═══════════════════════════════════════════════════ */
+#slide-2 { background: var(--dark); }
+#slide-2 .slide-inner {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 60px;
+  align-items: center;
+  padding: 60px 72px;
+}
+#slide-2 .left {}
+#slide-2 .right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#slide-2 .stat-box {
+  border: 1px solid var(--gold-dim);
+  padding: 36px 32px;
+  text-align: center;
+  background: rgba(200,169,110,0.04);
+}
+#slide-2 .stat-num {
+  font-family: var(--serif);
+  font-size: 100px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  display: block;
+}
+#slide-2 .stat-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-top: 12px;
+  display: block;
+}
+#slide-2 .source {
+  position: absolute;
+  bottom: 32px;
+  left: 72px;
+  font-size: 9px;
+  color: #333;
+  font-style: italic;
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 3 — COMPETITIVE BENCHMARK
+═══════════════════════════════════════════════════ */
+#slide-3 { background: var(--cream); }
+#slide-3 .slide-inner {
+  padding: 48px 72px 60px;
+}
+#slide-3 .bar-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-top: 36px;
+  height: 260px;
+}
+.bar-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bar-track {
+  width: 100%;
+  flex: 1;
+  background: var(--warm);
+  border-radius: 2px 2px 0 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.bar-fill {
+  width: 100%;
+  background: var(--gold);
+  border-radius: 2px 2px 0 0;
+  transition: height 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-fill.asa-fill { background: var(--charcoal); }
+.bar-card.is-asa .bar-track { background: rgba(200,169,110,0.15); border: 1px solid var(--gold); }
+.bar-name {
+  font-family: var(--sans);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-top: 10px;
+  text-align: center;
+}
+.bar-card.is-asa .bar-name { color: var(--charcoal); font-weight: 500; }
+.bar-score {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-top: 4px;
+}
+.bar-card.is-asa .bar-score { color: var(--gold-dim); }
+#slide-3 .bench-note {
+  margin-top: 16px;
+  font-size: 9px;
+  color: var(--grey);
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 4 — THE GAP
+═══════════════════════════════════════════════════ */
+#slide-4 { background: #F5F4F1; }
+#slide-4 .slide-inner { padding: 44px 72px; }
+#slide-4 .gap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 28px;
+}
+.gap-card {
+  padding: 18px 20px;
+  border-radius: 2px;
+  position: relative;
+}
+.gap-card.missing { background: #F5EAEA; border: 1px solid #DDBABA; }
+.gap-card.partial  { background: #FEF6E4; border: 1px solid #DDD0A0; }
+.gap-badge {
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.gap-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.gap-card.missing .gap-badge { color: var(--red-dim); }
+.gap-card.missing .gap-badge::before { background: var(--red-dim); }
+.gap-card.partial .gap-badge  { color: #8A6F1A; }
+.gap-card.partial .gap-badge::before  { background: #C8A030; }
+.gap-item {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--charcoal);
+  line-height: 1.3;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 5 — TRANSFORMATION
+═══════════════════════════════════════════════════ */
+#slide-5 { background: var(--charcoal); }
+#slide-5 .slide-inner {
+  padding: 52px 72px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 28px;
+}
+#slide-5 .transform-cols {
+  display: grid;
+  grid-template-columns: 1fr 36px 1fr;
+  gap: 0;
+  align-items: start;
+}
+.tf-col {
+  padding: 28px 28px;
+  height: 100%;
+}
+.tf-col.before { background: #1e1a1a; border: 1px solid #2a2424; }
+.tf-col.after  { background: rgba(200,169,110,0.06); border: 1px solid var(--gold-dim); }
+.tf-header {
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+.before .tf-header { color: #6A3030; }
+.after  .tf-header { color: var(--gold); }
+.tf-item {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 300;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  gap: 10px;
+  line-height: 1.4;
+}
+.before .tf-item { color: #7A6060; }
+.after  .tf-item { color: var(--gold-lt); }
+.tf-item .icon { flex-shrink: 0; opacity: 0.6; margin-top: 1px; }
+.tf-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: 18px;
+  height: 100%;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 6 — THE PROGRAM
+═══════════════════════════════════════════════════ */
+#slide-6 { background: var(--cream); }
+#slide-6 .slide-inner { padding: 44px 72px 52px; }
+#slide-6 .phases {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 28px;
+  height: 280px;
+}
+.phase-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 16px 20px;
+  background: var(--white);
+  border-top: 3px solid var(--gold);
+  position: relative;
+  box-shadow: 0 1px 12px rgba(0,0,0,0.05);
+}
+.phase-card.featured {
+  background: var(--charcoal);
+  border-top-color: var(--gold);
+}
+.phase-num {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 14px;
+}
+.phase-name {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--charcoal);
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+.phase-card.featured .phase-name { color: var(--white); }
+.phase-desc {
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--grey);
+  line-height: 1.5;
+}
+.phase-card.featured .phase-desc { color: #888880; }
+#slide-6 .timeline {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--grey);
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 7 — INVESTMENT
+═══════════════════════════════════════════════════ */
+#slide-7 { background: #F5F4F1; }
+#slide-7 .slide-inner {
+  padding: 52px 72px;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+.invest-main {
+  background: var(--charcoal);
+  padding: 36px 40px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.invest-label {
+  font-size: 8.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.invest-price {
+  font-family: var(--serif);
+  font-size: clamp(40px, 5vw, 60px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.invest-desc {
+  font-size: 11px;
+  font-weight: 300;
+  color: #888;
+  margin-bottom: 28px;
+}
+.invest-divider {
+  height: 1px;
+  background: #2a2a2a;
+  margin-bottom: 20px;
+}
+.invest-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid #222;
+}
+.invest-row-name {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--warm);
+}
+.invest-row-val {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--gold);
+}
+.invest-right { display: flex; flex-direction: column; gap: 16px; }
+.retainer-box {
+  background: var(--gold);
+  padding: 28px 28px;
+}
+.ret-label {
+  font-size: 7.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.ret-price {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1;
+}
+.ret-unit {
+  font-size: 11px;
+  color: #6A5020;
+  margin-top: 4px;
+}
+.ret-note {
+  font-size: 9px;
+  color: #8A6010;
+  margin-top: 10px;
+}
+.deliverables-box {
+  background: var(--white);
+  padding: 24px 28px;
+  border: 1px solid var(--warm);
+}
+.del-label {
+  font-size: 7.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+.del-item {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--charcoal);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--warm);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.del-item::before {
+  content: '·';
+  color: var(--gold);
+  font-size: 16px;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 8 — WHY TRIBAL MISCHIEF
+═══════════════════════════════════════════════════ */
+#slide-8 { background: var(--cream); }
+#slide-8 .slide-inner {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  padding: 0;
+  gap: 0;
+  height: 100%;
+}
+#slide-8 .left-panel {
+  background: var(--charcoal);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 52px 44px;
+  position: relative;
+  overflow: hidden;
+}
+#slide-8 .left-panel::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--gold);
+}
+#slide-8 .wtm-title {
+  font-family: var(--serif);
+  font-size: clamp(42px, 5.5vw, 66px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 0.95;
+  margin-bottom: 28px;
+}
+#slide-8 .wtm-sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--gold-lt);
+  line-height: 1.5;
+}
+#slide-8 .right-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 52px 60px;
+  gap: 16px;
+}
+.diff-card {
+  background: var(--white);
+  padding: 22px 24px;
+  border-left: 3px solid var(--gold);
+  box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+}
+.diff-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 6px;
+}
+.diff-body {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--grey);
+  line-height: 1.55;
+}
+
+/* ═══════════════════════════════════════════════════
+   SLIDE 9 — NEXT STEPS
+═══════════════════════════════════════════════════ */
+#slide-9 { background: var(--charcoal); }
+#slide-9 .slide-inner { padding: 52px 72px; }
+#slide-9 .cta-title {
+  font-family: var(--serif);
+  font-size: clamp(52px, 7.5vw, 88px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 0.95;
+  margin-bottom: 28px;
+}
+#slide-9 .cta-body {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--warm);
+  line-height: 1.65;
+  max-width: 580px;
+  margin-bottom: 48px;
+}
+#slide-9 .steps {
+  display: flex;
+  gap: 0;
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.step-item + .step-item {
+  margin-left: 40px;
+  padding-left: 40px;
+  border-left: 1px solid #2a2a2a;
+}
+.step-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--charcoal);
+  flex-shrink: 0;
+}
+.step-label {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--gold-lt);
+}
+#slide-9 .cta-contact {
+  position: absolute;
+  bottom: 32px;
+  left: 72px; right: 72px;
+  border-top: 1px solid #222;
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+/* ═══════════════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════════════ */
+#progress {
+  position: fixed;
+  bottom: 0; left: var(--sidebar); right: 0;
+  height: 2px;
+  background: #1e1e1e;
+  z-index: 200;
+}
+#progress-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════ */
+.slide.active .eyebrow,
+.slide.active .display,
+.slide.active .body-text,
+.slide.active .bar-row,
+.slide.active .gap-grid,
+.slide.active .transform-cols,
+.slide.active .phases,
+.slide.active .stat-box,
+.slide.active .steps,
+.slide.active .cta-title,
+.slide.active .cta-body,
+.slide.active .invest-main,
+.slide.active .invest-right,
+.slide.active .diff-card,
+.slide.active .wtm-title,
+.slide.active .wtm-sub,
+.slide.active .cover-title,
+.slide.active .cover-sub {
+  animation: fadeUp 0.6s ease both;
+}
+
+.slide.active .display        { animation-delay: 0.1s; }
+.slide.active .body-text      { animation-delay: 0.2s; }
+.slide.active .bar-row        { animation-delay: 0.15s; }
+.slide.active .gap-grid       { animation-delay: 0.15s; }
+.slide.active .transform-cols { animation-delay: 0.15s; }
+.slide.active .phases         { animation-delay: 0.15s; }
+.slide.active .stat-box       { animation-delay: 0.2s; }
+.slide.active .steps          { animation-delay: 0.25s; }
+.slide.active .cta-title      { animation-delay: 0.1s; }
+.slide.active .cta-body       { animation-delay: 0.2s; }
+.slide.active .invest-main    { animation-delay: 0.1s; }
+.slide.active .invest-right   { animation-delay: 0.22s; }
+.slide.active .diff-card:nth-child(1) { animation-delay: 0.12s; }
+.slide.active .diff-card:nth-child(2) { animation-delay: 0.22s; }
+.slide.active .diff-card:nth-child(3) { animation-delay: 0.32s; }
+.slide.active .wtm-title      { animation-delay: 0.1s; }
+.slide.active .wtm-sub        { animation-delay: 0.22s; }
+.slide.active .cover-title    { animation-delay: 0.08s; }
+.slide.active .cover-sub      { animation-delay: 0.2s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-brand">Tribal Mischief</div>
+  <div class="sidebar-nav" id="chapterNav"></div>
+  <div class="sidebar-footer">Andrew Sidford Architects<br>Discovery Deck · 2025</div>
+</nav>
+
+<!-- ══ COUNTER ══════════════════════════════════ -->
+<div id="counter">1 / 9</div>
+
+<!-- ══ PROGRESS ═════════════════════════════════ -->
+<div id="progress"><div id="progress-fill"></div></div>
+
+<!-- ══ NAV ARROWS ════════════════════════════════ -->
+<button class="nav-arrow" id="nav-prev" title="Previous (←)">&#8592;</button>
+<button class="nav-arrow" id="nav-next" title="Next (→)">&#8594;</button>
+
+<!-- ══ STAGE ═════════════════════════════════════ -->
+<main id="stage">
+
+  <!-- ── SLIDE 1: COVER ─────────────────────────── -->
+  <section class="slide slide-dark active" id="slide-1" data-chapter="Introduction">
+    <div class="slide-inner">
+      <div class="gold-bar"></div>
+      <!-- dot grid decoration -->
+      <div class="dot-grid" style="top:48px;right:48px;grid-template-columns:repeat(5,4px);grid-template-rows:repeat(6,4px);">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="eyebrow">Tribal Mischief · Strategic Amplification</div>
+      <div class="cover-title">Andrew<br>Sidford<br>Architects</div>
+      <div class="cover-sub">A Proposal for Strategic Amplification</div>
+      <div class="cover-meta">
+        <span class="meta-text">Newburyport, Massachusetts</span>
+        <span class="meta-text">Prospect Discovery Deck · 2025</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 2: THE INVISIBLE FIRM ──────────────── -->
+  <section class="slide slide-darker" id="slide-2" data-chapter="The Problem">
+    <div class="slide-inner">
+      <div class="left">
+        <div class="eyebrow">The Invisible Firm</div>
+        <div class="display display-xl" style="margin-bottom:24px;">Exceptional<br>architecture.<br><em style="font-style:italic;color:var(--gold-lt);">Hard to find online.</em></div>
+        <p class="body-text">Andrew Sidford Architects has spent decades delivering work that transforms spaces — and the lives lived inside them. But a firm of this caliber deserves a digital presence that matches that craft. Right now, your website and online story aren't doing justice to your portfolio.</p>
+      </div>
+      <div class="right">
+        <div class="stat-box">
+          <span class="stat-num">28</span>
+          <span class="stat-label">Features missing vs.<br>top competitors</span>
+        </div>
+      </div>
+    </div>
+    <div class="source">Source: Tribal Mischief competitive audit · 14 architecture firms benchmarked</div>
+  </section>
+
+  <!-- ── SLIDE 3: COMPETITIVE BENCHMARK ──────────── -->
+  <section class="slide slide-light" id="slide-3" data-chapter="The Benchmark">
+    <div class="slide-inner">
+      <div class="eyebrow" style="color:var(--gold-dim);">Where ASA Stands Today</div>
+      <div class="display display-md display-dark">A 14-firm competitive benchmark</div>
+      <div class="bar-row" id="barRow">
+        <!-- built by JS -->
+      </div>
+      <p class="bench-note">of 25 website features scored · Partial features count as 0.5 · Score = features present</p>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 4: THE GAP ─────────────────────────── -->
+  <section class="slide slide-off" id="slide-4" data-chapter="The Gap">
+    <div class="slide-inner">
+      <div class="eyebrow" style="color:var(--gold-dim);">The Gap</div>
+      <div class="display display-md display-dark">What every leading firm has — that ASA doesn't yet</div>
+      <div class="gap-grid">
+        <div class="gap-card missing"><div class="gap-badge">Missing</div><div class="gap-item">Homepage Value Proposition</div></div>
+        <div class="gap-card missing"><div class="gap-badge">Missing</div><div class="gap-item">Full-Bleed Hero Imagery or Film</div></div>
+        <div class="gap-card missing"><div class="gap-badge">Missing</div><div class="gap-item">Firm Philosophy &amp; Story Page</div></div>
+        <div class="gap-card missing"><div class="gap-badge">Missing</div><div class="gap-item">Filterable Portfolio</div></div>
+        <div class="gap-card missing"><div class="gap-badge">Missing</div><div class="gap-item">Contact / Enquiry Form</div></div>
+        <div class="gap-card missing"><div class="gap-badge">Missing</div><div class="gap-item">Video Project Walkthroughs</div></div>
+        <div class="gap-card missing"><div class="gap-badge">Missing</div><div class="gap-item">Client Testimonials</div></div>
+        <div class="gap-card partial"><div class="gap-badge">Partial</div><div class="gap-item">Mobile-Responsive Design</div></div>
+        <div class="gap-card partial"><div class="gap-badge">Partial</div><div class="gap-item">In-Depth Project Case Studies</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 5: TRANSFORMATION ──────────────────── -->
+  <section class="slide slide-dark" id="slide-5" data-chapter="The Transformation">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow">The Transformation</div>
+        <div class="display display-lg" style="margin-bottom:0;">From hidden craft to undeniable presence</div>
+      </div>
+      <div class="transform-cols">
+        <div class="tf-col before">
+          <div class="tf-header">Before</div>
+          <div class="tf-item"><span class="icon">—</span>No homepage value proposition</div>
+          <div class="tf-item"><span class="icon">—</span>Static, hard-to-navigate portfolio</div>
+          <div class="tf-item"><span class="icon">—</span>No firm story or design philosophy</div>
+          <div class="tf-item"><span class="icon">—</span>No mobile-responsive experience</div>
+          <div class="tf-item"><span class="icon">—</span>No client testimonials or social proof</div>
+          <div class="tf-item"><span class="icon">—</span>Score: 28% vs. industry leaders at 80%+</div>
+        </div>
+        <div class="tf-arrow">→</div>
+        <div class="tf-col after">
+          <div class="tf-header">After</div>
+          <div class="tf-item"><span class="icon" style="color:var(--gold);">✦</span>A clear narrative that earns immediate trust</div>
+          <div class="tf-item"><span class="icon" style="color:var(--gold);">✦</span>Filterable portfolio with deep case studies</div>
+          <div class="tf-item"><span class="icon" style="color:var(--gold);">✦</span>A firm voice prospects feel before they call</div>
+          <div class="tf-item"><span class="icon" style="color:var(--gold);">✦</span>Seamless on every device, every screen</div>
+          <div class="tf-item"><span class="icon" style="color:var(--gold);">✦</span>Testimonials and press that close the gap</div>
+          <div class="tf-item"><span class="icon" style="color:var(--gold);">✦</span>Automated content engine that keeps working</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 6: THE PROGRAM ─────────────────────── -->
+  <section class="slide slide-light" id="slide-6" data-chapter="The Program">
+    <div class="slide-inner">
+      <div class="eyebrow" style="color:var(--gold-dim);">The Program</div>
+      <div class="display display-md display-dark">Strategic Amplification — 4 months, 5 phases</div>
+      <div class="phases">
+        <div class="phase-card">
+          <div class="phase-num">01</div>
+          <div class="phase-name">Narrative &amp; Identity</div>
+          <div class="phase-desc">Story extraction, messaging architecture, brand voice</div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-num">02</div>
+          <div class="phase-name">Visual &amp; Cultural Capture</div>
+          <div class="phase-desc">On-site photography, video, archival media library</div>
+        </div>
+        <div class="phase-card featured">
+          <div class="phase-num">03</div>
+          <div class="phase-name">Digital Infrastructure</div>
+          <div class="phase-desc">New website, CMS, portfolio architecture</div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-num">04</div>
+          <div class="phase-name">Amplification Engine</div>
+          <div class="phase-desc">Content workflows, social automation, AI writing tools</div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-num">05</div>
+          <div class="phase-name">Org Adoption</div>
+          <div class="phase-desc">Staff training, workflow docs, leadership alignment</div>
+        </div>
+      </div>
+      <div class="timeline">
+        <span>Month 1 – 2</span>
+        <span>Month 3 – 4</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 7: INVESTMENT ──────────────────────── -->
+  <section class="slide slide-off" id="slide-7" data-chapter="Investment">
+    <div class="slide-inner">
+      <div class="invest-main">
+        <div>
+          <div class="invest-label">Strategic Amplification Program</div>
+          <div class="invest-price">$50,000 – $70,000</div>
+          <div class="invest-desc">3–4 month engagement · All five phases included</div>
+          <div class="invest-divider"></div>
+          <div class="invest-row"><span class="invest-row-name">Narrative &amp; Identity</span><span class="invest-row-val">$12k – $18k</span></div>
+          <div class="invest-row"><span class="invest-row-name">Visual &amp; Cultural Capture</span><span class="invest-row-val">$12k – $20k</span></div>
+          <div class="invest-row"><span class="invest-row-name">Digital Infrastructure</span><span class="invest-row-val">$20k – $30k</span></div>
+          <div class="invest-row"><span class="invest-row-name">Amplification Engine</span><span class="invest-row-val">$8k – $15k</span></div>
+        </div>
+        <div></div>
+      </div>
+      <div class="invest-right">
+        <div class="retainer-box">
+          <div class="ret-label">Ongoing Stewardship</div>
+          <div class="ret-price">$750 – $2,500</div>
+          <div class="ret-unit">/ month</div>
+          <div class="ret-note">after engagement completes</div>
+        </div>
+        <div class="deliverables-box">
+          <div class="del-label">What You Receive</div>
+          <div class="del-item">New website &amp; CMS</div>
+          <div class="del-item">Brand voice guide</div>
+          <div class="del-item">Professional media library</div>
+          <div class="del-item">Content engine + automation</div>
+          <div class="del-item">Staff-ready workflows</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 8: WHY TRIBAL MISCHIEF ─────────────── -->
+  <section class="slide slide-light" id="slide-8" data-chapter="Why Us">
+    <div class="slide-inner" style="padding:0;align-items:stretch;">
+      <div class="left-panel">
+        <div class="wtm-title">Why<br>Tribal<br>Mischief</div>
+        <div class="wtm-sub">We don't sell websites.<br>We build the systems<br>that make craft visible.</div>
+      </div>
+      <div class="right-panel">
+        <div class="diff-card">
+          <div class="diff-title">We specialize in creative organizations</div>
+          <div class="diff-body">Theaters, architects, studios, cultural institutions. We understand the specific way craft-driven firms earn trust — and we've built systems for exactly that.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-title">We build infrastructure, not campaigns</div>
+          <div class="diff-body">Every engagement leaves you with systems that keep working — not deliverables that need replacing six months later when the agency contract ends.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-title">We start with your story, not our services</div>
+          <div class="diff-body">The first phase is discovery. We listen before we build. The result feels like you, at your best — not like a template with your logo on it.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLIDE 9: NEXT STEPS ───────────────────────── -->
+  <section class="slide slide-dark" id="slide-9" data-chapter="Next Steps">
+    <div class="slide-inner">
+      <div class="gold-bar"></div>
+      <!-- dot grid -->
+      <div class="dot-grid" style="top:40px;right:48px;grid-template-columns:repeat(5,4px);grid-template-rows:repeat(4,4px);">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="eyebrow">Next Steps</div>
+      <div class="cta-title">Let's see if<br>this is a fit.</div>
+      <p class="cta-body">This work only succeeds when there's genuine alignment. We're not pitching you on a product — we're exploring whether Tribal Mischief is the right partner to help Andrew Sidford Architects be seen as clearly as it deserves to be.</p>
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-circle">1</div>
+          <div class="step-label">30-min discovery call</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">2</div>
+          <div class="step-label">Scoped proposal</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">3</div>
+          <div class="step-label">Engagement begins</div>
+        </div>
+      </div>
+      <div class="cta-contact">
+        <span>tribalmischief.com</span>
+        <span>hello@tribalmischief.com</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════ */
+const chapters = [
+  { id: 'slide-1', label: 'Introduction',       num: '01' },
+  { id: 'slide-2', label: 'The Problem',         num: '02' },
+  { id: 'slide-3', label: 'The Benchmark',       num: '03' },
+  { id: 'slide-4', label: 'The Gap',             num: '04' },
+  { id: 'slide-5', label: 'The Transformation',  num: '05' },
+  { id: 'slide-6', label: 'The Program',         num: '06' },
+  { id: 'slide-7', label: 'Investment',          num: '07' },
+  { id: 'slide-8', label: 'Why Us',              num: '08' },
+  { id: 'slide-9', label: 'Next Steps',          num: '09' },
+];
+
+const benchData = [
+  { name: 'ASA',         score: 28,  asa: true  },
+  { name: 'Olson Kundig',score: 86              },
+  { name: 'Studio Gang', score: 80              },
+  { name: 'Heatherwick', score: 78              },
+  { name: 'Foster +',    score: 76              },
+  { name: 'Snøhetta',    score: 74              },
+];
+
+const TOTAL = chapters.length;
+let current = 0;
+let transitioning = false;
+
+/* ═══════════════════════════════════════════════════
+   BUILD SIDEBAR
+═══════════════════════════════════════════════════ */
+const nav = document.getElementById('chapterNav');
+chapters.forEach((ch, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'chapter-btn' + (i === 0 ? ' active' : '');
+  btn.dataset.index = i;
+  btn.innerHTML = `<span class="chapter-label"><span class="chapter-num">${ch.num}</span>${ch.label}</span>`;
+  btn.addEventListener('click', () => goTo(i));
+  nav.appendChild(btn);
+});
+
+/* ═══════════════════════════════════════════════════
+   BUILD BAR CHART
+═══════════════════════════════════════════════════ */
+const barRow = document.getElementById('barRow');
+benchData.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'bar-card' + (d.asa ? ' is-asa' : '');
+  card.innerHTML = `
+    <div class="bar-track">
+      <div class="bar-fill ${d.asa ? 'asa-fill' : ''}" style="height:0%" data-pct="${d.score}"></div>
+    </div>
+    <div class="bar-name">${d.name}</div>
+    <div class="bar-score">${d.score}%</div>`;
+  barRow.appendChild(card);
+});
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+function goTo(index) {
+  if (transitioning || index === current) return;
+  if (index < 0 || index >= TOTAL) return;
+  transitioning = true;
+
+  const slides = document.querySelectorAll('.slide');
+  const btns   = document.querySelectorAll('.chapter-btn');
+
+  // exit current
+  slides[current].classList.remove('active');
+  slides[current].classList.add('exit');
+  btns[current].classList.remove('active');
+
+  current = index;
+
+  // enter new
+  slides[current].classList.add('active');
+  btns[current].classList.add('active');
+
+  // update counter
+  document.getElementById('counter').textContent = `${current + 1} / ${TOTAL}`;
+
+  // update progress
+  document.getElementById('progress-fill').style.width = `${((current + 1) / TOTAL) * 100}%`;
+
+  // counter color on light slides
+  const lightSlides = ['slide-3','slide-4','slide-6','slide-7','slide-8'];
+  const slideId = chapters[current].id;
+  document.getElementById('counter').classList.toggle('on-light', lightSlides.includes(slideId));
+
+  // animate bars if slide 3
+  if (slideId === 'slide-3') {
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach(el => {
+        el.style.height = el.dataset.pct + '%';
+      });
+    }, 200);
+  }
+
+  // clear exit class after transition
+  setTimeout(() => {
+    slides.forEach(s => s.classList.remove('exit'));
+    transitioning = false;
+  }, 520);
+
+  // scroll sidebar btn into view
+  btns[current].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+/* ═══════════════════════════════════════════════════
+   EVENTS
+═══════════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault(); goTo(current + 1);
+  }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') {
+    e.preventDefault(); goTo(current - 1);
+  }
+});
+
+document.getElementById('nav-next').addEventListener('click', () => goTo(current + 1));
+document.getElementById('nav-prev').addEventListener('click', () => goTo(current - 1));
+
+// touch swipe
+let touchStartX = 0;
+document.getElementById('stage').addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+document.getElementById('stage').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) dx < 0 ? goTo(current + 1) : goTo(current - 1);
+});
+
+// init progress + counter color
+document.getElementById('progress-fill').style.width = `${(1 / TOTAL) * 100}%`;
+</script>
+</body>
+</html>
